@@ -33,7 +33,7 @@ def fetch_article_text(article):
     article.text = '\n'.join(paragraphs)
 
 
-def summarize(client, article, model='gpt-3.5-turbo'):
+def summarize(client, article, model='gpt-4.1'):
     if not article.text:
         return
     prompt = (
