@@ -2,7 +2,7 @@ import os
 import requests
 from bs4 import BeautifulSoup
 import feedparser
-import openai
+from openai import OpenAI
 
 
 BBC_RSS = 'http://feeds.bbci.co.uk/news/business/economy/rss.xml'
@@ -33,24 +33,25 @@ def fetch_article_text(article):
     article.text = '\n'.join(paragraphs)
 
 
-def summarize(article, model='gpt-3.5-turbo'):
+def summarize(client, article, model='gpt-3.5-turbo'):
     if not article.text:
         return
     prompt = (
         "Summarize the following article about economy in a short paragraph:\n"
         f"{article.text[:4000]}"
     )
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model=model,
         messages=[{"role": "user", "content": prompt}],
     )
-    article.summary = response["choices"][0]["message"]["content"].strip()
+    article.summary = response.choices[0].message.content.strip()
 
 
 def main():
-    openai.api_key = os.environ.get('OPENAI_API_KEY')
-    if not openai.api_key:
+    api_key = os.environ.get('OPENAI_API_KEY')
+    if not api_key:
         raise EnvironmentError('OPENAI_API_KEY environment variable not set')
+    client = OpenAI(api_key=api_key)
 
     sources = [BBC_RSS, REUTERS_RSS]
     articles = []
@@ -59,7 +60,7 @@ def main():
 
     for art in articles:
         fetch_article_text(art)
-        summarize(art)
+        summarize(client, art)
         print(f"Title: {art.title}\nLink: {art.link}\nSummary: {art.summary}\n")
 
 
