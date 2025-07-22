@@ -10,7 +10,7 @@ OpenAI API.
 - `requests`
 - `beautifulsoup4`
 - `feedparser`
-- `openai`
+- `openai>=1.0`
 
 Install the dependencies with:
 
